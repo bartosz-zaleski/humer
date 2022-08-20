@@ -13,5 +13,18 @@ shellcheck shell/*
                 '''   
             }
         }
+        stage('bats') {
+            agent {
+                label "shellcheck"
+            }
+            steps {
+                dir('test/') {
+                sh '''
+shellcheck shell/*
+                '''
+                }
+            }
+        }
+    }
     }
 }
