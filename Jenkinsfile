@@ -3,15 +3,13 @@ pipeline {
         label "ubuntu"
     }
     stages {
-        stage('ubuntu') {
+        stage('shellcheck') {
             agent {
                 label "shellcheck"
             }
             steps {
                 sh '''
-pwd
-find .
-shellcheck --version
+shellcheck shell/*
                 '''   
             }
         }
