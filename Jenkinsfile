@@ -1,17 +1,17 @@
 pipeline {
     agent {
-        label: "ubuntu"
+        label "ubuntu"
     }
     stages {
         stage('ubuntu') {
             agent {
-                label: "shellcheck"
+                label "shellcheck"
             }
             steps {
                 sh '''
-                pwd
-                find .
-                shellcheck --version
+pwd
+find .
+shellcheck --version
                 '''   
             }
         }
