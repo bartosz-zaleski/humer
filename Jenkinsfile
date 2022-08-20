@@ -15,13 +15,13 @@ shellcheck shell/*
         }
         stage('bats') {
             agent {
-                label "shellcheck"
+                label "bats"
             }
             steps {
                 dir('test/') {
-                sh '''
-shellcheck shell/*
-                '''
+                    sh '''
+bats listener.sh
+                    '''
                 }
             }
         }
