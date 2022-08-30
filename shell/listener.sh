@@ -1,5 +1,17 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# Source common
+
+source "${SCRIPT_DIR}/../shell/common.sh"
+
+# Source config
+
+source "${SCRIPT_DIR}/../config/config"
+
+
+
 mac="${1}"
 mac=$(echo "${mac}" | xargs)
 
@@ -7,7 +19,7 @@ error_count=0
 index=0
 
 if [[ ! $mac =~ ^[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}$ ]]; then
-    echo "ERROR: incorrect MAC address: ${mac}"
+    _stderr "ERROR" "listener.sh: incorrect MAC address: ${mac}"
     exit 1
 fi
 
@@ -27,8 +39,9 @@ while read -r line; do
 
         if [[ $temp =~ ^[0-9]{4}$ && $hum =~ ^[0-9]{2}$ && $batt =~ ^[0-9]{1,2}.[0-9]{1,3}$ ]]; then
             
-            # TODO - serialise
-            echo "temp=${temp:0:4} hum=${hum} batt=${batt} error=${error_count}"
+            # Get readings
+            _stderr "INFO" "temp=${temp:0:4} hum=${hum} batt=${batt} error=${error_count}"
+            echo "${mac},${temp:0:4},${hum},${batt}" >> "${WORKSPACE}"/.readings
 
             # Decrease error count every 10 successful readings; not below 0
             if (( index%10==0 && error_count>0 )); then

@@ -9,7 +9,8 @@ pipeline {
             }
             steps {
                 sh '''
-shellcheck shell/*
+shellcheck -x shell/*
+shellcheck -x device/*
                 '''   
             }
         }
