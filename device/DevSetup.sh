@@ -27,30 +27,8 @@ while read line; do
     mac=
     mac=$(object_path_to_mac "${line}" 2>/dev/null) || continue 
 
-    (
-        _stderr "INFO" "Locking for new Device(${mac})" 
-        flock --wait 60 200
-        _stderr "INFO" "Locked for new Device(${mac})"
-        
-        # Update DB
-        
-        echo "${mac}" >> "${WORKSPACE}"/.db
-        _stderr "INFO" ".db updated"
-
-        # Start daemon
-        "${SCRIPT_DIR}"/../shell/listener.sh "${mac}" &
-        _stderr "INFO" "Listener daemon started"
-
-        # Unlock
-
-        _stderr "INFO" "Unlocking"
-        sleep 2s
-        
-    ) 200>"${WORKSPACE}"/.lock
-    _stderr "INFO" "New Device(${mac}) added; unlocked"
+    # Start daemon
+    _stderr "INFO" "Starting Device(${mac})"
+    "${SCRIPT_DIR}"/../shell/listener.sh "${mac}" &
     
-
-    
-    
-
 done<"${WORKSPACE}/${PIPEDEVIN}"

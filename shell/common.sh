@@ -1,8 +1,10 @@
 #!/bin/bash
 
-#RED='\033[0;31m'
+RED='\033[0;31m'
 GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
 BLUE='\033[0;34'
+PURPLE='\033[0;35m'
 NC='\033[0m'
 
 RED='\e[0;32m'
@@ -20,6 +22,10 @@ function _stderr() {
         out="${RED}ERROR: $message${NC}"
     elif [[ $message_type == 'OK' ]]; then
         out="${GREEN}OK: $message${NC}"
+    elif [[ $message_type == 'IMP' ]]; then
+        out="${PURPLE}IMPROVING: $message${NC}"
+    elif [[ $message_type == 'DET' ]]; then
+        out="${GREEN}DETERIORATING: $message${NC}"
     else
         echo "${RED} INCORRECT MESSAGE TYPE [${message_type}] ${NC}" 1>&2
         return 1
