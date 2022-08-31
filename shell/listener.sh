@@ -6,6 +6,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "${SCRIPT_DIR}/../shell/common.sh"
 source "${SCRIPT_DIR}/../config/config"
 
+# Trap
 trap cleanup EXIT
 
 function cleanup() {
@@ -18,8 +19,8 @@ function cleanup() {
         
         # Update DB
         
-        grep -v "${mac}" --no-filename .* "${WORKSPACE}"/.db > "${WORKSPACE}"/.db
-        _stderr "INFO" ".db updated"
+        grep -v "${mac}" --no-filename .* "${WORKSPACE}"/.devices > "${WORKSPACE}"/.devices
+        _stderr "INFO" ".devices updated"
 
         # Unlock
 
@@ -27,6 +28,8 @@ function cleanup() {
     ) 200>"${WORKSPACE}"/.lock
     _stderr "INFO" "Device(${mac}) removed; unlocked"
 }
+
+# Main
 
 mac="${1}"
 mac=$(echo "${mac}" | xargs)
@@ -48,8 +51,8 @@ fi
     
     # Update DB
     
-    echo "${mac}" >> "${WORKSPACE}"/.db
-    _stderr "INFO" ".db updated"
+    echo "${mac}" >> "${WORKSPACE}"/.devices
+    _stderr "INFO" ".devices updated"
 
     # Start daemon
     "${SCRIPT_DIR}"/../shell/listener.sh "${mac}" &

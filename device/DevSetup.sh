@@ -10,6 +10,8 @@ source "${SCRIPT_DIR}/../shell/common.sh"
 
 source "${SCRIPT_DIR}/../config/config"
 
+trap "kill -- -$$" EXIT
+
 # Check config validity
 
 if [[ -z "${WORKSPACE}" ]]; then  { _stderr "ERROR" "MISSING VARIABLE: WORKSPACE"; exit 1; } fi
@@ -29,6 +31,6 @@ while read line; do
 
     # Start daemon
     _stderr "INFO" "Starting Device(${mac})"
-    "${SCRIPT_DIR}"/../shell/listener.sh "${mac}" &
+    ( "${SCRIPT_DIR}"/../shell/listener.sh "${mac}" )
     
 done<"${WORKSPACE}/${PIPEDEVIN}"
