@@ -1,3 +1,6 @@
 WORKSPACE=~/.humer
 PIPEDEVIN=.humer-dev-in
 PIPEDEVOUT=.humer-dev-out
+
+INTERVAL=10s
+PROMETHEUS=localhost:9090

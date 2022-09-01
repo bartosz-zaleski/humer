@@ -26,6 +26,8 @@ function _stderr() {
         out="${PURPLE}IMPROVING: $message${NC}"
     elif [[ $message_type == 'DET' ]]; then
         out="${GREEN}DETERIORATING: $message${NC}"
+    elif [[ $message_type == 'NEUTRAL' ]]; then 
+        out="${NC}  $message"
     else
         echo "${RED} INCORRECT MESSAGE TYPE [${message_type}] ${NC}" 1>&2
         return 1

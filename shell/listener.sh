@@ -97,13 +97,13 @@ while read -r line; do
         fi
         
     else 
-        echo "ERROR: unexpected input: ${line}" 1>&2
+        _stderr "ERROR" "unexpected input: ${line}" 1>&2
         error_count=$(( error_count+1 ))
         _stderr "DET" "${mac} error_count=${error_count}"
     fi
 
     if (( error_count > 100 )); then
-        echo "ERROR: error count threshold reached" 1>&2
+        _stderr "ERROR" "error count threshold reached" 1>&2
     fi
 
 
