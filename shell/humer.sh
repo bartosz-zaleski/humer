@@ -43,12 +43,21 @@ while true; do
         battery=$(echo "${battery}" | cut --delimiter " " --fields 2)
 
         # insert the reading into DB
-        _stderr "NEUTRAL" "${device},$(date +%N),${temperature},${humidity},${battery}"        
+        # TODO - which date format is best for Prometheus?
+
+        out="${device},$(date +%N),${temperature},${humidity},${battery}"
+
+        # TODO 
+        #if [[  $out =~ ^MAC,timestamp,temperature,humidity,battery$ ]]
+
+
+        _stderr "NEUTRAL" "${device},$(date +%N),${temperature},${humidity},${battery}"
+        echo  >> "${WORKSPACE}"/readings
 
         sleep 3s
     done
 
-    sleep "${INTERVAL}"
+    sleep "${SENSOR_READING_INTERVAL}"
     _stderr "INFO" "Sleeping ${INTERVAL}"
 
 done
