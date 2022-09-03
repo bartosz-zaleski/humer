@@ -2,4 +2,6 @@ WORKSPACE=~/.humer
 PIPEDEVIN=.humer-dev-in
 PIPEDEVOUT=.humer-dev-out
 
-SENSOR_READING_INTERVAL=10s
+SENSOR_READING_INTERVAL=15s
+
+FLASK_SCRAPE='http://localhost:5000'

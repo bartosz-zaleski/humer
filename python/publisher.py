@@ -3,12 +3,12 @@ import sys
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/bathroom')
 def hello_world():
     
     out = ""
     
-    with open("/home/bzaleski/.humer/readings", 'r') as fin:
+    with open("/home/bzaleski/.humer/bathroom", 'r') as fin:
         out += fin.read()
     
     return out

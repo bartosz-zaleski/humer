@@ -42,22 +42,36 @@ while true; do
         battery=$(echo "${reading}" | grep --perl-regexp --only-matching '^Battery: [0-9]{2}')
         battery=$(echo "${battery}" | cut --delimiter " " --fields 2)
 
-        # insert the reading into DB
-        # TODO - which date format is best for Prometheus?
+        # TODO
+        # need to know whether 1st field is MAC or name (e.g. "Kitchen") and 2nd field is timestamp or sth human-friendly
 
-        out="${device},$(date +%N),${temperature},${humidity},${battery}"
-
-        # TODO 
-        #if [[  $out =~ ^MAC,timestamp,temperature,humidity,battery$ ]]
-
-
-        _stderr "NEUTRAL" "${device},$(date +%N),${temperature},${humidity},${battery}"
-        echo  >> "${WORKSPACE}"/readings
+        if [[ \
+            $temperature =~ ^[0-9]{2}\.[0-9]{2}$ && \
+            $humidity =~ ^[0-9]{2}$ && \
+            $battery =~ ^[0-9]{2}$ \
+        ]]; then
+            
+            cat <<EEE > "${WORKSPACE}/bathroom"
+# HELP humidity Humidity
+# TYPE humidity gauge
+humidity ${humidity}
+# HELP temperature Temperature
+# TYPE humidity gauge
+temperature ${temperature}
+# HELP battery Battery
+# TYPE humidity gauge
+battery ${battery}
+EEE
+            
+            unset out
+        else 
+            _stderr "WARNING" "Reading incorrect, skipping" 
+            _stderr "WARNING" "[${temperature}] [${humidity}] [${battery}]" 
+        fi       
 
         sleep 3s
     done
 
     sleep "${SENSOR_READING_INTERVAL}"
-    _stderr "INFO" "Sleeping ${INTERVAL}"
 
 done
