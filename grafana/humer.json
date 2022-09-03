@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -83,7 +83,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{__name__=\"temperature\", instance=\"localhost:5000\", job=\"bedroom\"}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{__name__=\"temperature\", instance=\"localhost:5000\", job=\"livingroom\"}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 20,
@@ -292,7 +323,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-greens"
           },
           "mappings": [],
           "thresholds": {
@@ -301,20 +332,17 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 7,
+        "x": 6,
         "y": 20
       },
       "id": 6,
@@ -355,7 +383,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-blues"
           },
           "mappings": [],
           "thresholds": {
@@ -364,20 +392,17 @@
               {
                 "color": "blue",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 10,
+        "x": 9,
         "y": 20
       },
       "id": 7,
@@ -418,7 +443,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-purples"
           },
           "mappings": [],
           "thresholds": {
@@ -427,20 +452,17 @@
               {
                 "color": "yellow",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 13,
+        "x": 12,
         "y": 20
       },
       "id": 10,
@@ -481,7 +503,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "continuous-reds"
           },
           "mappings": [],
           "thresholds": {
@@ -490,20 +512,17 @@
               {
                 "color": "orange",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 6,
         "w": 3,
-        "x": 16,
+        "x": 15,
         "y": 20
       },
       "id": 13,
@@ -552,6 +571,6 @@
   "timezone": "",
   "title": "Humer",
   "uid": "O3aL_GG4z",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
