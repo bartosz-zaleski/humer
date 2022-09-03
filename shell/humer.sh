@@ -28,10 +28,13 @@ done < "${SCRIPT_DIR}/../config/devices"
 # Main loop
 
 while true; do
-    for device in "${devices[@]}"; do
+    for line in "${devices[@]}"; do
 
-        reading=$(docker run -ti --net host jenkins/lywsd03mmc "${device}")
-        _stderr "INFO" "${device}: ${reading}"
+        mac=$(echo "${line}" | cut --delimiter " " --field 1)
+        location=$(echo "${line}" | cut --delimiter " " --field 2)
+
+        reading=$(docker run -ti --net host jenkins/lywsd03mmc "${mac}")
+        _stderr "INFO" "${location}(${mac}): ${reading}"
 
         temperature=$(echo "${reading}" | grep --perl-regexp --only-matching '^Temperature: [0-9\.]{5}')
         temperature=$(echo "${temperature}" | cut --delimiter " " --fields 2)
@@ -39,19 +42,16 @@ while true; do
         humidity=$(echo "${reading}" | grep --perl-regexp --only-matching '^Humidity: [0-9]{2}')
         humidity=$(echo "${humidity}" | cut --delimiter " " --fields 2)
 
-        battery=$(echo "${reading}" | grep --perl-regexp --only-matching '^Battery: [0-9]{2}')
+        battery=$(echo "${reading}" | grep --perl-regexp --only-matching '^Battery: [0-9]{1,3}')
         battery=$(echo "${battery}" | cut --delimiter " " --fields 2)
-
-        # TODO
-        # need to know whether 1st field is MAC or name (e.g. "Kitchen") and 2nd field is timestamp or sth human-friendly
 
         if [[ \
             $temperature =~ ^[0-9]{2}\.[0-9]{2}$ && \
             $humidity =~ ^[0-9]{2}$ && \
-            $battery =~ ^[0-9]{2}$ \
+            $battery =~ ^[0-9]{1,3}$ \
         ]]; then
             
-            cat <<EEE > "${WORKSPACE}/bathroom"
+            cat <<EEE > "${WORKSPACE}/${location}"
 # HELP humidity Humidity
 # TYPE humidity gauge
 humidity ${humidity}
@@ -63,11 +63,12 @@ temperature ${temperature}
 battery ${battery}
 EEE
             
-            unset out
         else 
             _stderr "WARNING" "Reading incorrect, skipping" 
-            _stderr "WARNING" "[${temperature}] [${humidity}] [${battery}]" 
-        fi       
+            _stderr "WARNING" "[${reading}]" 
+        fi
+
+        unset out mac location reading temperature humidity battery  
 
         sleep 3s
     done
