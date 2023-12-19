@@ -19,3 +19,10 @@ RUN useradd \
 RUN pip3 install lywsd03mmc
 
 USER hummer
+
+# Is the user necessary? Output from this should be consumed by database feeder
+
+USER root
+
+
+ENTRYPOINT ["lywsd03mmc"]
