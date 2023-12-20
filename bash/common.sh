@@ -1,7 +1,20 @@
 #!/bin/bash
 
-###
-# 
+#
+# Description:
+#   This function outputs nice, coloured log into the STDERR
+#
+# Must have ENV: 
+#   none
+#
+# Input:
+#   1: Message type, required: ( INFO, ERROR, OK, IMP(roving), DET(eriorating), NEUTRAL, WARNING )
+#   2: The message: string
+#
+# Output:
+#   STDERR: formatted message
+#   STDOUT: 0 if OK, 1 if error
+#
 
 function _stderr() {
 
@@ -38,24 +51,4 @@ function _stderr() {
     fi
 
     echo "${out}" 1>&2
-}
-
-function object_path_to_mac() {
-    local path="${1}"
-
-    local mac
-
-    if [[ ! $path =~ ^object\ path\ \"/org/bluez/hci0/dev_[A-F0-9]{2}_[A-F0-9]{2}_[A-F0-9]{2}_[A-F0-9]{2}_[A-F0-9]{2}_[A-F0-9]{2}\"$ ]]; then
-        _stderr "ERROR" "INCORRECT OBJECT PATH SUPPLIED [${path}]"
-        return 1
-    else
-        mac=$(echo "${path:33:17}" | sed 's/_/:/g')
-
-        if [[ ! $mac =~ ^[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}$ ]]; then 
-            _stderr "ERROR" "INCORRECT MAC ADDRESS"
-            return 1
-        else 
-            echo "${mac}"
-        fi
-    fi
 }

@@ -1,0 +1,6 @@
+[Unit]
+Description=Humer service - sensors readings - [location]/[MAC]
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/docker run -ti sensors:latest [MAC]
