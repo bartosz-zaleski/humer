@@ -1,0 +1,6 @@
+sensor              bathroom             A4:C1:38:49:E0:2D
+sensor              kitchen              A4:C1:38:A4:08:94
+sensor              livingroom           A4:C1:38:64:27:47
+sensor              bedroom              A4:C1:38:A5:B2:D0
+
+dehumidifier        bathroom             AA:BB:CC:DD:EE:FF

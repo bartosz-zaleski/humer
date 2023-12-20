@@ -8,6 +8,8 @@ RUN apt-get install -y \
     python3-pip \
     libglib2.0-dev
 
+RUN pip3 install lywsd03mmc
+
 RUN useradd \
     --home-dir /home/hummer \
     --create-home \
@@ -15,14 +17,6 @@ RUN useradd \
     --groups sudo \
     hummer
 
-
-RUN pip3 install lywsd03mmc
-
 USER hummer
-
-# Is the user necessary? Output from this should be consumed by database feeder
-
-USER root
-
 
 ENTRYPOINT ["lywsd03mmc"]
