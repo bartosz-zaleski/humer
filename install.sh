@@ -28,8 +28,9 @@ useradd \
 
 sudo --user humer mkdir /home/humer/.humer
 sudo --user humer touch /home/humer/.humer/readings
+chmod +x /home/humer/.humer/readings
 cp bash/read_sensor.sh /home/humer/.humer/
-chmod -R humer:humer /home/humer/.humer
+chown -R humer:humer /home/humer/.humer
 
 # 2. Build dockerfile/sensor
 
