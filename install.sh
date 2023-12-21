@@ -18,6 +18,19 @@ if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root t
 docker pull ubuntu:latest
 docker pull mariadb:latest
 
+# 3. User "humer"
+
+useradd \
+    --home-dir /home/humer/ \
+    --create-home \
+    --shell /usr/sbin/nologin \
+    humer
+
+sudo --user humer mkdir /home/humer/.humer
+sudo --user humer touch /home/humer/.humer/readings
+cp bash/read_sensor.sh /home/humer/.humer/
+chmod -R humer:humer /home/humer/.humer
+
 # 2. Build dockerfile/sensor
 
 (
@@ -61,20 +74,27 @@ done < config/devices
 
 # 5. Deploy services
 
-cd $workspace
+while read -r line; do
 
-chown root:root *.service
-chown root:root *.timer
+    line=$(echo "$line" | xargs)
 
-chmod 644 *.service
-chmod 644 *.timer
+    device_type=$(echo "$line" | cut --delimiter " " --fields 1)
+    device_location=$(echo "$line" | cut --delimiter " " --fields 2)
 
-mv *.service /etc/systemd/system/
-mv *.timer /etc/systemd/system/
+    if [[ $device_type == "sensor" ]]; then
+        
+        chown root:root "$workspace/humer-sensors-$device_location.service"
+        chown root:root "$workspace/humer-sensors-$device_location.timer"
 
-# 6. Restart systemd
+        chmod 644 "$workspace/humer-sensors-$device_location.service"
+        chmod 644 "$workspace/humer-sensors-$device_location.timer"
+        
+        mv "$workspace/humer-sensors-$device_location.service" "/etc/systemd/system/humer-sensors-$device_location.service"
+        mv "$workspace/humer-sensors-$device_location.timer" "/etc/systemd/system/humer-sensors-$device_location.timer"
 
-systemctl daemon-reload
-systemctl enable humer-sensors-*
-systemctl start humer-sensors-*.timer
+        systemctl daemon-reload
+        systemctl start "humer-sensors-$device_location.service"
+        systemctl enable "humer-sensors-$device_location.timer"
 
+    fi
+done < config/devices
