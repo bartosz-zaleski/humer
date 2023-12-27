@@ -42,7 +42,3 @@ done < config/devices
 
 systemctl daemon-reload
 systemctl reset-failed
-
-# 2. Remove user "humer"
-
-userdel humer --remove --force

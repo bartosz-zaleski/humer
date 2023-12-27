@@ -4,7 +4,10 @@ mac=$1
 
 # TODO - validate MAC
 
-whoami
 
-echo "$mac" >> readings
-/usr/bin/docker run -ti sensors:latest "$mac" >> /home/humer/.humer/readings
+o=$(/usr/bin/docker run --net host sensor:latest "$mac" >> /root/.humer/readings)
+
+# Sanitise output
+
+
+echo "$(date +%s) $mac" >> /root/.humer/readings

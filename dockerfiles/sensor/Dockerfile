@@ -10,13 +10,6 @@ RUN apt-get install -y \
 
 RUN pip3 install lywsd03mmc
 
-RUN useradd \
-    --home-dir /home/humer \
-    --create-home \
-    --shell /bin/bash \
-    --groups sudo \
-    humer
+COPY lywsd03mmc /usr/local/bin/lywsd03mmc
 
-USER humer
-
-ENTRYPOINT ["lywsd03mmc"]
+#ENTRYPOINT ["lywsd03mmc"]

@@ -18,19 +18,12 @@ if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root t
 docker pull ubuntu:latest
 docker pull mariadb:latest
 
-# 3. User "humer"
+# 3. Executables
 
-useradd \
-    --home-dir /home/humer/ \
-    --create-home \
-    --shell /usr/sbin/nologin \
-    humer
-
-sudo --user humer mkdir /home/humer/.humer
-sudo --user humer touch /home/humer/.humer/readings
-chmod +x /home/humer/.humer/readings
-cp bash/read_sensor.sh /home/humer/.humer/
-chown -R humer:humer /home/humer/.humer
+mkdir /root/.humer
+touch /root/.humer/readings
+chmod +x /root/.humer/readings
+cp bash/read_sensor.sh /root/.humer/
 
 # 2. Build dockerfile/sensor
 
