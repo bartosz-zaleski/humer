@@ -12,4 +12,4 @@ RUN pip3 install lywsd03mmc
 
 COPY lywsd03mmc /usr/local/bin/lywsd03mmc
 
-#ENTRYPOINT ["lywsd03mmc"]
+ENTRYPOINT ["lywsd03mmc"]

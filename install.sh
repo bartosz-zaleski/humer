@@ -21,8 +21,7 @@ docker pull mariadb:latest
 # 3. Executables
 
 mkdir /root/.humer
-touch /root/.humer/readings
-chmod +x /root/.humer/readings
+echo "" > /root/.humer/readings
 cp bash/read_sensor.sh /root/.humer/
 
 # 2. Build dockerfile/sensor
