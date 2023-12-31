@@ -2,8 +2,7 @@
 Description=Humer timer - sensors readings - [location]
 
 [Timer]
-OnBootSec=5min
-OnUnitActiveSec=[interval]
+OnCalendar=[interval]
 
 [Install]
 WantedBy=timers.target

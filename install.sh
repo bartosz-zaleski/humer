@@ -22,6 +22,7 @@ docker pull mariadb:latest
 
 mkdir /root/.humer
 echo "" > /root/.humer/readings
+echo "" > /root/.humer/errors
 cp bash/read_sensor.sh /root/.humer/
 
 # 2. Build dockerfile/sensor
@@ -59,7 +60,7 @@ while read -r line; do
 
             replace '[location]' "$device_location" -- "humer-sensors-$device_location.timer"
             replace '[MAC]' "$mac" -- "humer-sensors-$device_location.timer"
-            replace '[interval]' "$interval" -- "humer-sensors-$device_location.timer"
+            replace '[interval]' "*:0/$interval" -- "humer-sensors-$device_location.timer"
         )
     fi
 

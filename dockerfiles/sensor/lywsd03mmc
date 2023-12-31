@@ -13,7 +13,7 @@ for mac in args.mac:
 	try:
 		client = lywsd03mmc.Lywsd03mmcClient(mac)
 		data = client.data        
-		print(str(int(time.time()))+ "," +str(mac)+ "," +str(data.temperature)+ "," +str(data.humidity)+ "," +str(data.battery))
+		print("OK,"+ str(int(time.time()))+ "," +str(mac)+ "," +str(data.temperature)+ "," +str(data.humidity)+ "," +str(data.battery))
 
 	except Exception as e:
-		print(e)
+		print("ERROR," +str(e))

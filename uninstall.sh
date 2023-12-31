@@ -42,3 +42,7 @@ done < config/devices
 
 systemctl daemon-reload
 systemctl reset-failed
+
+# 2. Remove files
+
+rm -rf /root/.humer/
