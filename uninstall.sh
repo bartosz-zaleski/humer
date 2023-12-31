@@ -45,4 +45,4 @@ systemctl reset-failed
 
 # 2. Remove files
 
-rm -rf /root/.humer/
+rm -rf /root/.humer/read_sensor.sh

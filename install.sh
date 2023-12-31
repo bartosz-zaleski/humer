@@ -4,25 +4,28 @@ source bash/common.sh
 
 # 0. Sanity check
 
+## 0.1 Docker
 docker &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "build.sh ERROR: 'docker' command failed"; exit 1; fi
+if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: 'docker' command failed"; exit 1; fi
 
+## 0.2 bash replace
 which replace &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "build.sh ERROR: 'replace' command failed"; exit 1; fi
+if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: 'replace' command failed"; exit 1; fi
 
-if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
+# 0.3 is root?
+if [[ ! $USER == "root" ]]; then _stderr "ERROR" "install.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
 
+# 0.4 sqlite
+which sqlite3 &>/dev/null
+if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: no sqlite3 installed"; exit 1; fi
 
 # 1. Prerequisites
 
 docker pull ubuntu:latest
-docker pull mariadb:latest
 
-# 3. Executables
+# 3. Files
 
-mkdir /root/.humer
-echo "" > /root/.humer/readings
-echo "" > /root/.humer/errors
+mkdir /root/.humer/
 cp bash/read_sensor.sh /root/.humer/
 
 # 2. Build dockerfile/sensor
@@ -40,6 +43,7 @@ workspace=$(mktemp -d)
 
 while read -r line; do
 
+    # Trim
     line=$(echo "$line" | xargs)
 
     device_type=$(echo "$line" | cut --delimiter " " --fields 1)
@@ -70,6 +74,7 @@ done < config/devices
 
 while read -r line; do
 
+    # Trim
     line=$(echo "$line" | xargs)
 
     device_type=$(echo "$line" | cut --delimiter " " --fields 1)
@@ -92,3 +97,42 @@ while read -r line; do
 
     fi
 done < config/devices
+
+# 6. Create database
+
+(
+    cd /root/.humer/
+    sqlite3 humer.db "VACUUM;"
+    sqlite3 humer.db " \
+        CREATE TABLE IF NOT EXISTS sensors ( \
+            id_sensor INTEGER PRIMARY KEY ASC, \
+            location TEXT, \
+            mac TEXT \
+        ); \
+    "
+    sqlite3 humer.db " \
+        CREATE TABLE IF NOT EXISTS sensor_readings ( \
+            id_reading INTEGER PRIMARY KEY ASC, \
+            id_sensor INTEGER, \
+            tstamp INTEGER, \
+            temperature INTEGER, \
+            humidity INTEGER, \
+            battery INTEGER, \
+            FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor) \
+        ); \
+    "
+
+    sqlite3 humer.db " \
+        CREATE TABLE IF NOT EXISTS sensor_errors ( \
+            id_error INTEGER PRIMARY KEY ASC, \
+            id_sensor INTEGER, \
+            tstamp INTEGER, \
+            error_message TEXT, \
+            FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor)
+        ); \
+    "
+)
+
+
+OK,1704055701,A4:C1:38:A5:B2:D0,18.04,70,82
+ERROR,Failed to connect to peripheral A4:C1:38:A5:B2:D0, addr type: public

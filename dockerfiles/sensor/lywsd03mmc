@@ -16,4 +16,4 @@ for mac in args.mac:
 		print("OK,"+ str(int(time.time()))+ "," +str(mac)+ "," +str(data.temperature)+ "," +str(data.humidity)+ "," +str(data.battery))
 
 	except Exception as e:
-		print("ERROR," +str(e))
+		print("ERROR," +str(int(time.time()))+ "," +str(e))
