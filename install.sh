@@ -100,39 +100,55 @@ done < config/devices
 
 # 6. Create database
 
-(
-    cd /root/.humer/
-    sqlite3 humer.db "VACUUM;"
-    sqlite3 humer.db " \
-        CREATE TABLE IF NOT EXISTS sensors ( \
-            id_sensor INTEGER PRIMARY KEY ASC, \
-            location TEXT, \
-            mac TEXT \
-        ); \
-    "
-    sqlite3 humer.db " \
-        CREATE TABLE IF NOT EXISTS sensor_readings ( \
-            id_reading INTEGER PRIMARY KEY ASC, \
-            id_sensor INTEGER, \
-            tstamp INTEGER, \
-            temperature INTEGER, \
-            humidity INTEGER, \
-            battery INTEGER, \
-            FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor) \
-        ); \
-    "
+# TODO - not null
 
-    sqlite3 humer.db " \
-        CREATE TABLE IF NOT EXISTS sensor_errors ( \
-            id_error INTEGER PRIMARY KEY ASC, \
-            id_sensor INTEGER, \
-            tstamp INTEGER, \
-            error_message TEXT, \
-            FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor)
-        ); \
-    "
-)
+sqlite3 /root/.humer/humer.db "VACUUM;"
 
+sqlite3 /root/.humer/humer.db " \
+    CREATE TABLE IF NOT EXISTS sensors ( \
+        id_sensor INTEGER PRIMARY KEY ASC, \
+        location TEXT, \
+        mac TEXT, \
+        UNIQUE(mac) \
+    ); \
+"
 
-OK,1704055701,A4:C1:38:A5:B2:D0,18.04,70,82
-ERROR,Failed to connect to peripheral A4:C1:38:A5:B2:D0, addr type: public
+while read -r line; do
+
+    line=$(echo "$line" | xargs)
+    
+    device_type=$(echo "$line" | cut --delimiter " " --fields 1)
+    device_location=$(echo "$line" | cut --delimiter " " --fields 2)
+    mac=$(echo "$line" | cut --delimiter " " --fields 3)
+
+    if [[ $device_type == "sensor" ]]; then
+
+        sqlite3 /root/.humer/humer.db " \
+            INSERT INTO sensors(location, mac) \
+            VALUES('$device_location', '$mac');
+        "
+    fi
+done < config/devices
+
+sqlite3 /root/.humer/humer.db " \
+    CREATE TABLE IF NOT EXISTS sensor_readings ( \
+        id_reading INTEGER PRIMARY KEY ASC, \
+        id_sensor INTEGER, \
+        tstamp INTEGER, \
+        temperature INTEGER, \
+        humidity INTEGER, \
+        battery INTEGER, \
+        FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor) \
+    ); \
+"
+
+sqlite3 /root/.humer/humer.db " \
+    CREATE TABLE IF NOT EXISTS sensor_errors ( \
+        id_error INTEGER PRIMARY KEY ASC, \
+        id_sensor INTEGER, \
+        tstamp INTEGER, \
+        error_message TEXT, \
+        FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor)
+    ); \
+"
+
