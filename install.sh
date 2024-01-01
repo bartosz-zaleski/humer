@@ -8,10 +8,6 @@ source bash/common.sh
 docker &>/dev/null
 if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: 'docker' command failed"; exit 1; fi
 
-## 0.2 bash replace
-which replace &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: 'replace' command failed"; exit 1; fi
-
 # 0.3 is root?
 if [[ ! $USER == "root" ]]; then _stderr "ERROR" "install.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
 
@@ -58,13 +54,13 @@ while read -r line; do
         (
             cd $workspace
 
-            replace '[location]' "$device_location" -- "humer-sensors-$device_location.service"
-            replace '[MAC]' "$mac" -- "humer-sensors-$device_location.service"
-            replace '[interval]' "$interval" -- "humer-sensors-$device_location.service"
+            sed -i "s|\[location\]|$device_location|g" "humer-sensors-$device_location.service"
+            sed -i "s|\[MAC\]|$mac|g" "humer-sensors-$device_location.service"
+            sed -i "s|\[interval\]|$interval|g" "humer-sensors-$device_location.service"
 
-            replace '[location]' "$device_location" -- "humer-sensors-$device_location.timer"
-            replace '[MAC]' "$mac" -- "humer-sensors-$device_location.timer"
-            replace '[interval]' "*:0/$interval" -- "humer-sensors-$device_location.timer"
+            sed -i "s|\[location\]|$device_location|g" "humer-sensors-$device_location.timer"
+            sed -i "s|\[MAC\]|$mac|g" "humer-sensors-$device_location.timer"
+            sed -i "s|\[interval\]|\*:0/$interval|g" "humer-sensors-$device_location.timer"
         )
     fi
 
@@ -155,3 +151,4 @@ sqlite3 /root/.humer/humer.db " \
     ); \
 "
 
+# TODO - verify the installation. Perhaps before starting the services?
