@@ -1,15 +1,15 @@
 #!/bin/bash
 
 mac=$1
-device_location=$2
 
 # TODO - validate MAC
-# TODO - validate location
 
 reading=$(/usr/bin/docker run --rm --net host sensor:latest "$mac")
 
 if [[ "$reading" =~ ^OK.*$ ]]; then
-    echo "$reading" >> /root/.humer/readings
+
+    # e.g. 
+    # OK,1704055701,A4:C1:38:A5:B2:D0,70,18.04,82
 
     tstamp=$(echo "$reading" | cut --delimiter ',' --fields 2)
     mac=$(echo "$reading" | cut --delimiter ',' --fields 3)
@@ -18,22 +18,32 @@ if [[ "$reading" =~ ^OK.*$ ]]; then
     battery=$(echo "$reading" | cut --delimiter ',' --fields 6)
 
     sqlite3 /root/.humer/humer.db " \
-        INSERT INTO sensor_readings(id_sensor, tstamp, temperature, humidity, battery)
+        INSERT INTO sensor_readings(id_sensor, tstamp, temperature, humidity, battery) \
         SELECT \
-            id_sensor,
-            '$(date +%s)' AS timestamp,
-            '$temperature' AS temperature,
-            '$humidity' AS humidity,
-            '$battery' AS battery
-        FROM sensors WHERE mac='$mac'
+            id_sensor, \
+            '$(date +%s)' AS tstamp, \
+            '$temperature' AS temperature, \
+            '$humidity' AS humidity, \
+            '$battery' AS battery \
+        FROM sensors WHERE mac='$mac' \
     "
 
 elif [[ "$reading" =~ ^ERROR.*$ ]]; then
-    echo "$reading" >> /root/.humer/errors
-    # exit 1 - for systemd to know that the service has failed
+
+    
+    # e.g. 
+    # ERROR,1704121409,A4:C1:38:64:27:47,Failed to connect to peripheral A4:C1:38:64:27:47 addr type: public
+
+    mac=$(echo "$reading" | cut --delimiter ',' --fields 3)
+    error_message=$(echo "$reading" | cut --delimiter ',' --fields 4)
+
+    sqlite3 /root/.humer/humer.db " \
+        INSERT INTO sensor_errors(id_sensor, tstamp, severity, error_message) \
+        SELECT \
+            id_sensor, \
+            '$(date +%s)' AS tstamp, \
+            50, \
+            '$error_message' AS error_message \
+        FROM sensors WHERE mac='$mac' \
+    "
 fi
-
-
-
-#OK,1704055701,A4:C1:38:A5:B2:D0,70,18.04,82
-#ERROR,Failed to connect to peripheral A4:C1:38:A5:B2:D0, addr type: public

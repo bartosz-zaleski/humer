@@ -4,5 +4,5 @@ Description=Humer service - sensors readings - [location]/[MAC]
 [Service]
 Type=simple
 ExecStart=flock \
-    /root/.humer/errors \
+    /root/.humer/humer.db \
     --command "/bin/bash /root/.humer/read_sensor.sh '[MAC]' '[location]'"

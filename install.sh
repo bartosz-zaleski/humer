@@ -92,8 +92,10 @@ while read -r line; do
         mv "$workspace/humer-sensors-$device_location.timer" "/etc/systemd/system/humer-sensors-$device_location.timer"
 
         systemctl daemon-reload
+        systemctl enable "humer-sensors-$device_location.service"
         systemctl start "humer-sensors-$device_location.service"
         systemctl enable "humer-sensors-$device_location.timer"
+        systemctl start "humer-sensors-$device_location.timer"
 
     fi
 done < config/devices
@@ -136,7 +138,7 @@ sqlite3 /root/.humer/humer.db " \
         id_sensor INTEGER, \
         tstamp INTEGER, \
         temperature INTEGER, \
-        humidity INTEGER, \
+        humidity REAL, \
         battery INTEGER, \
         FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor) \
     ); \
@@ -146,6 +148,7 @@ sqlite3 /root/.humer/humer.db " \
     CREATE TABLE IF NOT EXISTS sensor_errors ( \
         id_error INTEGER PRIMARY KEY ASC, \
         id_sensor INTEGER, \
+        severity INTEGER, \
         tstamp INTEGER, \
         error_message TEXT, \
         FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor)
