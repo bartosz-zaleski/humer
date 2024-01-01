@@ -33,7 +33,7 @@ if [[ "$reading" =~ ^OK.*$ ]]; then
         SELECT \
             id_sensor, \
             '$(date +%s)' AS tstamp, \
-            '40' AS severity \
+            '40' AS severity, \
             'Reading taken' AS error_message \
         FROM sensors WHERE mac='$mac' \
     "
