@@ -400,7 +400,7 @@
         "type": "frser-sqlite-datasource",
         "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
       },
-      "description": "Showing last 10 error entries",
+      "description": "Showing last 10 log entries",
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -434,7 +434,7 @@
           ]
         }
       ],
-      "title": "Errors",
+      "title": "Logs",
       "type": "logs"
     }
   ],
@@ -452,6 +452,6 @@
   "timezone": "browser",
   "title": "Humer",
   "uid": "f9c60571-df96-4fea-a851-0b9b902ce523",
-  "version": 12,
+  "version": 13,
   "weekStart": "monday"
 }
