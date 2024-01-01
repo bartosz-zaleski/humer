@@ -28,6 +28,16 @@ if [[ "$reading" =~ ^OK.*$ ]]; then
         FROM sensors WHERE mac='$mac' \
     "
 
+    sqlite3 /root/.humer/humer.db " \
+        INSERT INTO sensor_errors(id_sensor, tstamp, severity, error_message) \
+        SELECT \
+            id_sensor, \
+            '$(date +%s)' AS tstamp, \
+            '40' AS severity \
+            'Reading taken' AS error_message \
+        FROM sensors WHERE mac='$mac' \
+    "
+
 elif [[ "$reading" =~ ^ERROR.*$ ]]; then
 
     
