@@ -18,6 +18,7 @@ if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: no sqlite3 installed
 # 1. Prerequisites
 
 docker pull ubuntu:latest
+docker pull grafana/grafana
 
 # 3. Files
 
@@ -28,10 +29,15 @@ cp bash/read_sensor.sh /root/.humer/
 
 (
     cd dockerfiles/sensor
-    docker build --tag sensor:latest .
+    docker build --tag humer/sensor:latest .
 )
 
-# 3. Build dockerfile/mariadb
+# 3. Build dockerfile/grafana
+
+(
+    cd dockerfiles/grafana
+    docker build --tag humer/grafana:latest .
+)
 
 # 4. Prepare services
 
@@ -133,7 +139,7 @@ sqlite3 /root/.humer/humer.db " \
         id_reading INTEGER PRIMARY KEY ASC, \
         id_sensor INTEGER, \
         tstamp INTEGER, \
-        temperature INTEGER, \
+        temperature REAL, \
         humidity REAL, \
         battery INTEGER, \
         FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor) \

@@ -4,7 +4,7 @@ mac=$1
 
 # TODO - validate MAC
 
-reading=$(/usr/bin/docker run --rm --net host sensor:latest "$mac")
+reading=$(/usr/bin/docker run --rm --net host humer/sensor:latest "$mac")
 
 if [[ "$reading" =~ ^OK.*$ ]]; then
 
