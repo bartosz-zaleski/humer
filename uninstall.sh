@@ -9,9 +9,6 @@ source bash/common.sh
 docker &>/dev/null
 if [[ ! $? == 0 ]]; then _stderr "ERROR" "build.sh ERROR: 'docker' command failed"; exit 1; fi
 
-which replace &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "build.sh ERROR: 'replace' command failed"; exit 1; fi
-
 if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
 
 # 1. Remove services
