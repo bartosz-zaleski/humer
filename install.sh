@@ -148,12 +148,12 @@ sqlite3 /root/.humer/humer.db " \
 "
 
 sqlite3 /root/.humer/humer.db " \
-    CREATE TABLE IF NOT EXISTS sensor_errors ( \
+    CREATE TABLE IF NOT EXISTS humer_logs ( \
         id_error INTEGER PRIMARY KEY ASC, \
         id_sensor INTEGER, \
         severity INTEGER, \
         tstamp INTEGER, \
-        error_message TEXT, \
+        log TEXT, \
         FOREIGN KEY(id_sensor) REFERENCES sensors(id_sensor)
     ); \
 "

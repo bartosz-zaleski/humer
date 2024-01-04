@@ -29,12 +29,12 @@ if [[ "$reading" =~ ^OK.*$ ]]; then
     "
 
     sqlite3 /root/.humer/humer.db " \
-        INSERT INTO sensor_errors(id_sensor, tstamp, severity, error_message) \
+        INSERT INTO humer_logs(id_sensor, tstamp, severity, log) \
         SELECT \
             id_sensor, \
             '$(date +%s)' AS tstamp, \
             '40' AS severity, \
-            'Reading taken' AS error_message \
+            'Reading taken' AS log \
         FROM sensors WHERE mac='$mac' \
     "
 
@@ -48,12 +48,12 @@ elif [[ "$reading" =~ ^ERROR.*$ ]]; then
     error_message=$(echo "$reading" | cut --delimiter ',' --fields 4)
 
     sqlite3 /root/.humer/humer.db " \
-        INSERT INTO sensor_errors(id_sensor, tstamp, severity, error_message) \
+        INSERT INTO humer_logs(id_sensor, tstamp, severity, log) \
         SELECT \
             id_sensor, \
             '$(date +%s)' AS tstamp, \
             50, \
-            '$error_message' AS error_message \
+            '$error_message' AS log \
         FROM sensors WHERE mac='$mac' \
     "
 fi
