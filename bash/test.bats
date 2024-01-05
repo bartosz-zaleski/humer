@@ -38,12 +38,21 @@ setup() {
     run sh /code/humer/humer.sh --devices_file "$devices_file" validate_devices_file
     [[ "${lines[*]}" =~ Incorrect ]]
 
+    # TODO Why doesn't this work?
+    # devices_file=$(mktemp)
+    # echo "sensor kitchen AA:AA:AA:AA:AA:AA 1" > "$devices_file"
+    # echo "" >> "$devices_file"
+    # echo "sensor kitchen AA:AA:AA:AA:AA:AA 1" >> "$devices_file"
+    # echo "" >> "$devices_file"
+    # run sh /code/humer/humer.sh --devices_file "$devices_file" validate_devices_file
+    # echo ">>> ${lines[*]} <<<" >&3
+    # [[ "${lines[*]}" =~ Correct ]]
+
     devices_file=$(mktemp)
     echo "sensor kitchen AA:AA:AA:AA:AA:AA 1" > "$devices_file"
-    echo "" >> "$devices_file"
-    echo "sensor kitchen AA:AA:AA:AA:AA:AA 1" >> "$devices_file"
-    echo "" >> "$devices_file"
-    run sh /code/humer/humer.sh --devices_file "$devices_file" validate_devices_file
-    echo ">>> ${lines[*]} <<<" >&3
-    [[ "${lines[*]}" =~ Correct ]]
+    run sh /code/humer/humer.sh --devices_file "$devices_file" --device_type "sensor" --device_location "kitchen" get_mac
+    echo ">>>$status<<<"
+    echo ">>> ${lines[*]} <<<"
+    [ "$status" -eq 0 ]
+    [[ "${lines[*]}" =~ ^AA:AA:AA:AA:AA:AA$ ]]
 }

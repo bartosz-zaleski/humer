@@ -7,20 +7,21 @@ Usage: ./humer.sh [flags] [action]
 Manually run various functions of Humer.
 
 Flags:
---help              Display help
---version           Display version
---device_file       Path to the "devices" config file. Default: /root/.humer/devices
---device_type       Type of the device to be addressed
---device_location   Location of the device to be addressed
---device_mac        MAC address of the device to be addressed
+--help                  Display help
+--version               Display version
+--device_file           Path to the "devices" config file. Default: /root/.humer/devices
+--device_type           Type of the device to be addressed
+--device_location       Location of the device to be addressed
+--device_mac            MAC address of the device to be addressed
 
 Actions:
-read                Get current reading from a device
-mac                 Get MAC address of a device
+read                    Get current reading from a device
+mac                     Get MAC address of a device
 add_device
 enable_device
 disable_device
 remove_device
+validate_devices_file   Validates whether the "devices" file is of correct structure
 
 Examples
 
@@ -67,6 +68,11 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
+        --device_location)
+            export device_location=$2
+            shift
+            shift
+            ;;
         get_mac)
             export action=get_mac
             shift
@@ -94,9 +100,11 @@ done
 ### Functions - input validation
 
 validate_device_type() {
-    device_type=$1
 
-    if [[ $device_type =~ ^sensor|smartplug$ ]]; then
+    local _device_type
+    _device_type=$1
+
+    if [[ $_device_type =~ ^sensor|smartplug$ ]]; then
         return 0
     else
         return 1
@@ -104,9 +112,11 @@ validate_device_type() {
 }
 
 validate_device_location() {
-    device_location=$1
+    
+    local _device_location
+    _device_location=$1
 
-    if [[ $device_location =~ ^bedroom|bathroom|kitchen|livingroom$ ]]; then
+    if [[ $_device_location =~ ^bedroom|bathroom|kitchen|livingroom$ ]]; then
         return 0
     else
         return 1
@@ -114,9 +124,11 @@ validate_device_location() {
 }
 
 validate_mac() {
-    mac=$1
 
-    if [[ $mac =~ ^[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}$ ]]; then
+    local _mac
+    _mac=$1
+
+    if [[ $_mac =~ ^[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}$ ]]; then
         return 0
     else
         return 1
@@ -124,9 +136,11 @@ validate_mac() {
 }
 
 validate_time_interval() {
-    interval=$1
 
-    if [[ $interval =~ ^[0-9]{1}$ ]]; then
+    local _interval
+    _interval=$1
+
+    if [[ $_interval =~ ^[0-9]{1}$ ]]; then
         return 0
     else
         return 1
@@ -134,6 +148,12 @@ validate_time_interval() {
 }
 
 validate_devices_file() {
+
+    local _devices_file
+    local _device_type
+    local _device_location
+    local _mac
+    local _interval
 
     _devices_file=$1
 
@@ -171,10 +191,52 @@ validate_devices_file() {
 ### Functions - actual
 
 get_mac() {
-    devices_file=$1
-    device_type=$2
-    device_location=$3
 
+    local _devices_file
+    local _device_type
+    local _device_location
+    local _mac
+    local _line
+    local _count
+
+    _devices_file=$1
+    _device_type=$2
+    _device_location=$3
+
+    # Validate input
+
+    if ! validate_devices_file $_devices_file; then
+        echo -e "\e[31m ERROR: Devices file incorrect: $_devices_file \e[0m"
+        exit 1
+    fi
+
+    if ! validate_device_type $_device_type; then
+        echo -e "\e[31m ERROR: Device type incorrect: $_device_type \e[0m"
+        exit 1
+    fi
+
+    if ! validate_device_location $_device_location; then
+        echo -e "\e[31m ERROR: Device location incorrect: $_device_location \e[0m"
+        exit 1
+    fi
+
+    # Get the MAC from the "devices" file
+
+    _line=$(grep "$_device_type" "$_devices_file" | grep "$_device_location")
+    _count=$(echo "$_line" | wc -l)
+
+    if (( $_count == 0 )); then
+        echo -e "\e[31m ERROR: Device not found \e[0m"
+        exit 1
+    elif (( $_count > 1 )); then
+        echo -e "\e[31m ERROR: More than one devices found \e[0m"
+        exit 1
+    fi
+
+    _line=$(echo "$_line" | xargs)
+    _mac=$(echo "$_line" | cut --delimiter " " --fields 3)
+
+    echo "$_mac"
 
 }
 
@@ -186,10 +248,10 @@ case $action in
         get_mac $devices_file $device_type $device_location
         ;;
     validate_devices_file)
-        if validate_devices_file $devices_file == 0; then echo -e "\e[32mCorrect\e[0m"; else echo -e "\e[31mIncorrect\e[0m"; fi
+        if validate_devices_file $devices_file == 0; then echo -e "\e[32m Correct \e[0m"; else echo -e "\e[31m Incorrect \e[0m"; fi
         ;;
     *)
-        echo -e "\e[31mERROR: Incorrect action: $action\e[0m"
+        echo -e "\e[31m ERROR: Incorrect action: $action \e[0m"
         exit 1
         ;;
 esac

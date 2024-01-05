@@ -25,6 +25,7 @@ docker pull grafana/grafana
 mkdir /root/.humer/
 cp bash/read_sensor.sh /root/.humer/
 mkdir /root/.humer/grafana/
+cp -ar bash/humer.sh /usr/bin/humer
 
 # 2. Build dockerfile/sensor
 
