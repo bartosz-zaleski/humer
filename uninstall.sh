@@ -34,6 +34,8 @@ if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root t
 export remove_db=0
 export remove_images=0
 
+export CURRENT_VERSION="0.0.1"
+
 while [[ $# -gt 0 ]]; do
     case $1 in
         --help)
@@ -44,16 +46,16 @@ while [[ $# -gt 0 ]]; do
             echo "$CURRENT_VERSION"
             exit 0
             ;;
-        --remove-db)
+        --remove_db)
             export remove_db=1
             shift
             ;;
-        --remove-images)
+        --remove_images)
             export remove_images=1
             shift
             ;;
          *)
-            echo -e "\e[31mERROR [$FUNCNAME]: Incorrect parameter: $1\e[0m"
+            echo -e "\e[31mERROR: Incorrect parameter: $1\e[0m"
             echo ""
             show_help
             exit 1
