@@ -43,7 +43,7 @@ export devices_file=/root/.humer/devices
 export action=""
 
 if [[ "${#@}" == 0 ]]; then 
-    echo -e "\e[31mERROR [$FUNCNAME]: No parameters supplied\e[0m"
+    echo -e "\e[31mERROR [${FUNCNAME[0]}]: No parameters supplied\e[0m"
     echo ""
     show_help
     exit 1
@@ -96,7 +96,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         *)
-            echo -e "\e[31mERROR [$FUNCNAME]: Incorrect parameter: $1\e[0m"
+            echo -e "\e[31mERROR [${FUNCNAME[0]}]: Incorrect parameter: $1\e[0m"
             echo ""
             show_help
             exit 1
@@ -104,12 +104,6 @@ while [[ $# -gt 0 ]]; do
 
     esac
 done
-
-# echo ">> version: $version <<"
-# echo ">> verbose: $verbose <<"
-# echo ">> device_type: $device_type <<"
-# echo ">> device_location: $device_location <<"
-# echo ">> device_mac: $device_mac <<"
 
 ### Functions - input validation
 
@@ -183,17 +177,17 @@ validate_devices_file() {
 
                 if [[ -z $line ]]; then continue; fi
 
-                _device_type=$(echo $line | cut --delimiter " " --fields 1)
-                _device_location=$(echo $line | cut --delimiter " " --fields 2)
-                _mac=$(echo $line | cut --delimiter " " --fields 3)
-                _interval=$(echo $line | cut --delimiter " " --fields 4)
+                _device_type=$(echo "$line" | cut --delimiter " " --fields 1)
+                _device_location=$(echo "$line" | cut --delimiter " " --fields 2)
+                _mac=$(echo "$line" | cut --delimiter " " --fields 3)
+                _interval=$(echo "$line" | cut --delimiter " " --fields 4)
                 
                 validate_device_type     "$_device_type"       || return 2
                 validate_device_location "$_device_location"   || return 2
                 validate_mac             "$_mac"               || return 2
                 validate_time_interval   "$_interval"          || return 2
 
-            done < $_devices_file
+            done < "$_devices_file"
 
             return 0
         fi
@@ -219,18 +213,18 @@ get_mac() {
 
     # Validate input
 
-    if ! validate_devices_file $_devices_file; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+    if ! validate_devices_file "$_devices_file"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
         exit 1
     fi
 
-    if ! validate_device_type $_device_type; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+    if ! validate_device_type "$_device_type"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
         exit 1
     fi
 
-    if ! validate_device_location $_device_location; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+    if ! validate_device_location "$_device_location"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
         exit 1
     fi
 
@@ -239,11 +233,11 @@ get_mac() {
     _line=$(grep "$_device_type" "$_devices_file" | grep "$_device_location")
     _count=$(echo "$_line" | wc -l)
 
-    if (( $_count == 0 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Device not found \e[0m"
+    if (( _count == 0 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device not found \e[0m"
         exit 1
-    elif (( $_count > 1 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: More than one devices found \e[0m"
+    elif (( _count > 1 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: More than one devices found \e[0m"
         exit 1
     fi
 
@@ -267,13 +261,13 @@ get_device_type() {
 
     # Validate input
 
-    if ! validate_mac $_mac; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+    if ! validate_mac "$_mac"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac  \e[0m"
         exit 1
     fi
 
-    if ! validate_devices_file $_devices_file; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+    if ! validate_devices_file "$_devices_file"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
         exit 1
     fi
 
@@ -282,11 +276,11 @@ get_device_type() {
     _line=$(grep "$_mac" "$_devices_file")
     _count=$(echo "$_line" | wc -l)
 
-    if (( $_count == 0 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Device not found \e[0m"
+    if (( _count == 0 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device not found \e[0m"
         exit 1
-    elif (( $_count > 1 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: More than one devices found \e[0m"
+    elif (( _count > 1 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: More than one devices found \e[0m"
         exit 1
     fi
 
@@ -309,13 +303,13 @@ get_device_location() {
 
     # Validate input
 
-    if ! validate_mac $_mac; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+    if ! validate_mac "$_mac"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac  \e[0m"
         exit 1
     fi
 
-    if ! validate_devices_file $_devices_file; then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+    if ! validate_devices_file "$_devices_file"; then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
         exit 1
     fi
 
@@ -324,11 +318,11 @@ get_device_location() {
     _line=$(grep "$_mac" "$_devices_file")
     _count=$(echo "$_line" | wc -l)
 
-    if (( $_count == 0 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: Device not found \e[0m"
+    if (( _count == 0 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device not found \e[0m"
         exit 1
-    elif (( $_count > 1 )); then
-        echo -e "\e[31m ERROR [$FUNCNAME]: More than one devices found \e[0m"
+    elif (( _count > 1 )); then
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: More than one devices found \e[0m"
         exit 1
     fi
 
@@ -355,29 +349,29 @@ disable_device() {
     # Validate input
 
     if [[ -n $_mac ]]; then
-        if ! validate_mac $_mac; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+        if ! validate_mac "$_mac"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac  \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_type ]]; then
-        if ! validate_device_type $_device_type; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+        if ! validate_device_type "$_device_type"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_location ]]; then
-        if ! validate_device_location $_device_location; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+        if ! validate_device_location "$_device_location"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_devices_file ]]; then
-        if ! validate_devices_file $_devices_file; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+        if ! validate_devices_file "$_devices_file"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
             exit 1
         fi
     fi
@@ -386,19 +380,19 @@ disable_device() {
 
     if [[ -n $_mac ]]; then
 
-        _device_type=$(get_device_type $_mac $_devices_file)
-        _device_location=$(get_device_location $_mac $_devices_file)
+        _device_type=$(get_device_type "$_mac" "$_devices_file")
+        _device_location=$(get_device_location "$_mac" "$_devices_file")
 
         echo -e "\e[32m Found device type:\e[0m: $_device_type"
         echo -e "\e[32m Found device location:\e[0m: $_device_location"
 
         if ! validate_device_type "$_device_type"; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
 
         if ! validate_device_location "$_device_location"; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
 
@@ -406,14 +400,14 @@ disable_device() {
 
         _mac=$(get_mac "$_devices_file" "$_device_type" "$_device_location")
 
-        if ! validate_mac $_mac; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
+        if ! validate_mac "$_mac"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac \e[0m"
             exit 1
         fi
 
     else
 
-        echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters; provide either MAC and "devices" file or device type and device location \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters; provide either MAC and \"devices\" file or device type and device location \e[0m"
         exit 1
 
     fi
@@ -454,7 +448,7 @@ disable_device() {
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.service"; fi
 
     else
-        echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: must be root or sudoer \e[0m"
         exit 1
     fi
 
@@ -484,29 +478,29 @@ enable_device() {
     # Validate input
 
     if [[ -n $_mac ]]; then
-        if ! validate_mac $_mac; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+        if ! validate_mac "$_mac"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac  \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_type ]]; then
-        if ! validate_device_type $_device_type; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+        if ! validate_device_type "$_device_type"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_location ]]; then
-        if ! validate_device_location $_device_location; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+        if ! validate_device_location "$_device_location"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_devices_file ]]; then
-        if ! validate_devices_file $_devices_file; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+        if ! validate_devices_file "$_devices_file"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
             exit 1
         fi
     fi
@@ -515,19 +509,19 @@ enable_device() {
 
     if [[ -n $_mac ]]; then
 
-        _device_type=$(get_device_type $_mac $_devices_file)
-        _device_location=$(get_device_location $_mac $_devices_file)
+        _device_type=$(get_device_type "$_mac $_devices_file")
+        _device_location=$(get_device_location "$_mac" "$_devices_file")
 
         echo -e "\e[32m Found device type:\e[0m: $_device_type"
         echo -e "\e[32m Found device location:\e[0m: $_device_location"
 
         if ! validate_device_type "$_device_type"; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
 
         if ! validate_device_location "$_device_location"; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
 
@@ -535,14 +529,14 @@ enable_device() {
 
         _mac=$(get_mac "$_devices_file" "$_device_type" "$_device_location")
 
-        if ! validate_mac $_mac; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
+        if ! validate_mac "$_mac"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac \e[0m"
             exit 1
         fi
 
     else
 
-        echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters; provide either MAC and "devices" file or device type and device location \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters; provide either MAC and \"devices\" file or device type and device location \e[0m"
         exit 1
 
     fi
@@ -585,7 +579,7 @@ enable_device() {
         
 
     else
-        echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: must be root or sudoer \e[0m"
         exit 1
     fi
 
@@ -616,29 +610,29 @@ device_status() {
     # Validate input
 
     if [[ -n $_mac ]]; then
-        if ! validate_mac $_mac; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+        if ! validate_mac "$_mac"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: MAC incorrect: $_mac  \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_type ]]; then
-        if ! validate_device_type $_device_type; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+        if ! validate_device_type "$_device_type"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_device_location ]]; then
-        if ! validate_device_location $_device_location; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+        if ! validate_device_location "$_device_location"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
     fi
 
     if [[ -n $_devices_file ]]; then
-        if ! validate_devices_file $_devices_file; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+        if ! validate_devices_file "$_devices_file"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Devices file incorrect: $_devices_file \e[0m"
             exit 1
         fi
     fi
@@ -647,19 +641,19 @@ device_status() {
 
     if [[ -n $_mac ]]; then
 
-        _device_type=$(get_device_type $_mac $_devices_file)
-        _device_location=$(get_device_location $_mac $_devices_file)
+        _device_type=$(get_device_type "$_mac $_devices_file")
+        _device_location=$(get_device_location "$_mac $_devices_file")
 
         echo -e "\e[32m Found device type:\e[0m: $_device_type"
         echo -e "\e[32m Found device location:\e[0m: $_device_location"
 
-        if ! validate_device_type $_device_type; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+        if ! validate_device_type "$_device_type"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
 
-        if ! validate_device_location $_device_location; then
-            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+        if ! validate_device_location "$_device_location"; then
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
 
@@ -670,7 +664,7 @@ device_status() {
 
     else
 
-        echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters; provide either MAC and "devices" file or device type and device location \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters; provide either MAC and \"devices\" file or device type and device location \e[0m"
         exit 1
 
     fi
@@ -693,10 +687,10 @@ device_status() {
 
 case $action in
     get_mac)
-        get_mac $devices_file $device_type $device_location
+        get_mac "$devices_file" "$device_type" "$device_location"
         ;;
     validate_devices_file)
-        if validate_devices_file $devices_file == 0; then 
+        if validate_devices_file "$devices_file" == 0; then 
             echo -e "\e[32m Correct \e[0m"
         else 
             echo -e "\e[31m Incorrect \e[0m"
@@ -708,7 +702,7 @@ case $action in
         elif [[ -n $device_type && -n $device_location ]]; then
             disable_device "" "$device_type" "$device_location" "$devices_file"
         else
-            echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters for \"$action\"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
         fi
         ;;
@@ -718,7 +712,7 @@ case $action in
         elif [[ -n $device_type && -n $device_location ]]; then
             enable_device "" "$device_type" "$device_location" "$devices_file"
         else
-            echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters for \"$action\"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
         fi
         ;;
@@ -728,12 +722,12 @@ case $action in
         elif [[ -n $device_type && -n $device_location ]]; then
             device_status "" "$device_type" "$device_location" ""
         else
-            echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect parameters for \"$action\"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
         fi
         ;;
     *)
-        echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect action: $action \e[0m"
+        echo -e "\e[31m ERROR [${FUNCNAME[0]}]: Incorrect action: $action \e[0m"
         exit 1
         ;;
 esac
