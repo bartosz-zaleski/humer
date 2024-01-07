@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "frser-sqlite-datasource",
-        "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
+        "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
       },
       "description": "",
       "fieldConfig": {
@@ -152,6 +152,21 @@
             "time",
             "ts"
           ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
+          },
+          "hide": false,
+          "queryText": "SELECT sensor_readings.humidity AS livingroom, sensor_readings.tstamp AS time FROM sensors \nJOIN sensor_readings ON sensors.id_sensor=sensor_readings.id_sensor WHERE sensors.location='livingroom' ORDER BY tstamp ASC;",
+          "queryType": "table",
+          "rawQueryText": "SELECT sensor_readings.humidity AS livingroom, sensor_readings.tstamp AS time FROM sensors \nJOIN sensor_readings ON sensors.id_sensor=sensor_readings.id_sensor WHERE sensors.location='livingroom' ORDER BY tstamp ASC;",
+          "refId": "livingroom",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         }
       ],
       "title": "Humidity",
@@ -160,7 +175,7 @@
     {
       "datasource": {
         "type": "frser-sqlite-datasource",
-        "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
+        "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
       },
       "fieldConfig": {
         "defaults": {
@@ -285,6 +300,21 @@
             "time",
             "ts"
           ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
+          },
+          "hide": false,
+          "queryText": "SELECT sensor_readings.temperature AS livingroom, sensor_readings.tstamp AS time\nFROM sensors JOIN sensor_readings ON sensors.id_sensor=sensor_readings.id_sensor WHERE sensors.location='livingroom' ORDER BY tstamp ASC;",
+          "queryType": "table",
+          "rawQueryText": "SELECT sensor_readings.temperature AS livingroom, sensor_readings.tstamp AS time\nFROM sensors JOIN sensor_readings ON sensors.id_sensor=sensor_readings.id_sensor WHERE sensors.location='livingroom' ORDER BY tstamp ASC;",
+          "refId": "livingroom",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         }
       ],
       "title": "Temperature",
@@ -293,7 +323,7 @@
     {
       "datasource": {
         "type": "frser-sqlite-datasource",
-        "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
+        "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
       },
       "description": "",
       "fieldConfig": {
@@ -390,6 +420,21 @@
             "time",
             "ts"
           ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
+          },
+          "hide": false,
+          "queryText": "SELECT sensor_readings.battery AS Livingroom\nFROM sensor_readings JOIN sensors ON sensor_readings.id_sensor=sensors.id_sensor \nWHERE sensors.location='livingroom'\nORDER BY sensor_readings.tstamp DESC\nLIMIT 1",
+          "queryType": "table",
+          "rawQueryText": "SELECT sensor_readings.battery AS Livingroom\nFROM sensor_readings JOIN sensors ON sensor_readings.id_sensor=sensors.id_sensor \nWHERE sensors.location='livingroom'\nORDER BY sensor_readings.tstamp DESC\nLIMIT 1",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
         }
       ],
       "title": "Battery",
@@ -398,9 +443,9 @@
     {
       "datasource": {
         "type": "frser-sqlite-datasource",
-        "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
+        "uid": "c34788cb-adb1-4793-b868-8c8632fa7355"
       },
-      "description": "Showing last 10 log entries",
+      "description": "Showing logs from last 3 days",
       "gridPos": {
         "h": 7,
         "w": 12,
@@ -424,9 +469,9 @@
             "type": "frser-sqlite-datasource",
             "uid": "c4a0ce71-467d-4354-91e7-a215978274de"
           },
-          "queryText": "SELECT ' -- ' || sensors.location || ' -- '  || humer_logs.log AS value, \nCASE severity \n  WHEN 50 THEN 'warning'\n  WHEN 60 THEN 'error'\n  WHEN 100 THEN 'critical'\n  ELSE 'info'\nEND AS level, humer_logs.tstamp AS time\nFROM humer_logs JOIN sensors ON humer_logs.id_sensor=sensors.id_sensor\nORDER BY humer_logs.tstamp DESC\nLIMIT 10",
+          "queryText": "SELECT ' -- ' || sensors.location || ' -- '  || humer_logs.log AS value, \nCASE severity \n  WHEN 50 THEN 'warning'\n  WHEN 60 THEN 'error'\n  WHEN 100 THEN 'critical'\n  ELSE 'info'\nEND AS level, humer_logs.tstamp AS time\nFROM humer_logs JOIN sensors ON humer_logs.id_sensor=sensors.id_sensor\nWHERE tstamp > strftime('%s','now','-3 days')\nORDER BY humer_logs.tstamp DESC",
           "queryType": "table",
-          "rawQueryText": "SELECT ' -- ' || sensors.location || ' -- '  || humer_logs.log AS value, \nCASE severity \n  WHEN 50 THEN 'warning'\n  WHEN 60 THEN 'error'\n  WHEN 100 THEN 'critical'\n  ELSE 'info'\nEND AS level, humer_logs.tstamp AS time\nFROM humer_logs JOIN sensors ON humer_logs.id_sensor=sensors.id_sensor\nORDER BY humer_logs.tstamp DESC\nLIMIT 10",
+          "rawQueryText": "SELECT ' -- ' || sensors.location || ' -- '  || humer_logs.log AS value, \nCASE severity \n  WHEN 50 THEN 'warning'\n  WHEN 60 THEN 'error'\n  WHEN 100 THEN 'critical'\n  ELSE 'info'\nEND AS level, humer_logs.tstamp AS time\nFROM humer_logs JOIN sensors ON humer_logs.id_sensor=sensors.id_sensor\nWHERE tstamp > strftime('%s','now','-3 days')\nORDER BY humer_logs.tstamp DESC",
           "refId": "errors",
           "timeColumns": [
             "time",
@@ -452,6 +497,6 @@
   "timezone": "browser",
   "title": "Humer",
   "uid": "f9c60571-df96-4fea-a851-0b9b902ce523",
-  "version": 13,
+  "version": 6,
   "weekStart": "monday"
 }
