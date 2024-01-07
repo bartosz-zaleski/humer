@@ -1,19 +1,15 @@
 #!/bin/bash
 
-source bash/common.sh
-
 # 0. Sanity check
 
 ## 0.1 Docker
-docker &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: 'docker' command failed"; exit 1; fi
+if ! docker &>/dev/null; then _stderr "ERROR" "install.sh ERROR: 'docker' command failed"; exit 1; fi
 
 # 0.3 is root?
-if [[ ! $USER == "root" ]]; then _stderr "ERROR" "install.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
+if [[ ! $EUID == 0 ]]; then _stderr "ERROR" "install.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
 
 # 0.4 sqlite
-which sqlite3 &>/dev/null
-if [[ ! $? == 0 ]]; then _stderr "ERROR" "install.sh ERROR: no sqlite3 installed"; exit 1; fi
+if ! sqlite3 --version &>/dev/null == 0; then _stderr "ERROR" "install.sh ERROR: no sqlite3 installed"; exit 1; fi
 
 # 1. Prerequisites
 
@@ -31,14 +27,14 @@ cp -ar config/devices /root/.humer/devices
 # 2. Build dockerfile/sensor
 
 (
-    cd dockerfiles/sensor
+    cd dockerfiles/sensor || exit 1
     docker build --tag humer/sensor:latest .
 )
 
 # 3. Build dockerfile/grafana
 
 (
-    cd dockerfiles/grafana
+    cd dockerfiles/grafana || exit 1
     docker build --tag humer/grafana:latest .
 )
 
@@ -61,7 +57,7 @@ while read -r line; do
         cp -ar "service/humer-sensors-[location].timer" "$workspace/humer-sensors-$device_location.timer"
 
         (
-            cd $workspace
+            cd "$workspace" || exit 1
 
             sed -i "s|\[location\]|$device_location|g" "humer-sensors-$device_location.service"
             sed -i "s|\[MAC\]|$mac|g" "humer-sensors-$device_location.service"
