@@ -5,4 +5,4 @@ Description=Humer service - sensors readings - [location]/[MAC]
 Type=simple
 ExecStart=flock \
     /root/.humer/humer.db \
-    --command "/bin/bash /root/.humer/read_sensor.sh '[MAC]' '[location]'"
+    --command timeout 5m "/bin/bash /root/.humer/read_sensor.sh '[MAC]' '[location]'"
