@@ -73,6 +73,11 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
+        --mac)
+            export mac=$2
+            shift
+            shift
+            ;;
         get_mac)
             export action=get_mac
             shift
@@ -247,11 +252,85 @@ get_mac() {
 get_device_type() {
 
     local _mac
+    local _devices_file
+    local _line
+    local _count
+    local _device_type
+
+    _mac=$1
+    _devices_file=$2
+
+    # Validate input
+
+    if ! validate_mac $_mac; then
+        echo -e "\e[31m ERROR: MAC incorrect: $_mac  \e[0m"
+        exit 1
+    fi
+
+    if ! validate_devices_file $_devices_file; then
+        echo -e "\e[31m ERROR: Devices file incorrect: $_devices_file \e[0m"
+        exit 1
+    fi
+
+    # The actual function
+
+    _line=$(grep "$_mac" "$_devices_file")
+    _count=$(echo "$_line" | wc -l)
+
+    if (( $_count == 0 )); then
+        echo -e "\e[31m ERROR: Device not found \e[0m"
+        exit 1
+    elif (( $_count > 1 )); then
+        echo -e "\e[31m ERROR: More than one devices found \e[0m"
+        exit 1
+    fi
+
+    _line=$(echo "$_line" | xargs)
+    _device_type=$(echo "$_line" | cut --delimiter " " --fields 1)
+
+    echo "$_device_type"
 }
 
 get_device_location() {
 
     local _mac
+    local _devices_file
+    local _line
+    local _count
+    local _device_location
+
+    _mac=$1
+    _devices_file=$2
+
+    # Validate input
+
+    if ! validate_mac $_mac; then
+        echo -e "\e[31m ERROR: MAC incorrect: $_mac  \e[0m"
+        exit 1
+    fi
+
+    if ! validate_devices_file $_devices_file; then
+        echo -e "\e[31m ERROR: Devices file incorrect: $_devices_file \e[0m"
+        exit 1
+    fi
+
+    # The actual function
+
+    _line=$(grep "$_mac" "$_devices_file")
+    _count=$(echo "$_line" | wc -l)
+
+    if (( $_count == 0 )); then
+        echo -e "\e[31m ERROR: Device not found \e[0m"
+        exit 1
+    elif (( $_count > 1 )); then
+        echo -e "\e[31m ERROR: More than one devices found \e[0m"
+        exit 1
+    fi
+
+    _line=$(echo "$_line" | xargs)
+    _device_location=$(echo "$_line" | cut --delimiter " " --fields 1)
+
+    echo "$_device_location"
 
 }
 
@@ -365,7 +444,7 @@ disable_device() {
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
 
         exit 0
-        
+
     else
         echo -e "\e[31m ERROR: must be root or sudoer \e[0m"
         exit 1
