@@ -328,7 +328,7 @@ get_device_location() {
     fi
 
     _line=$(echo "$_line" | xargs)
-    _device_location=$(echo "$_line" | cut --delimiter " " --fields 1)
+    _device_location=$(echo "$_line" | cut --delimiter " " --fields 2)
 
     echo "$_device_location"
 
