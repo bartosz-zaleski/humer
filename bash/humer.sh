@@ -539,7 +539,7 @@ device_status() {
 
     # The actual function
 
-    _status=$($ystemctl is-active "humer-$_device_type-$_device_location.timer")
+    _status=$(systemctl is-active "humer-$_device_type-$_device_location.timer")
     if [[ $_status == "active" ]]; then
         echo -e "\e[32m Active\e[0m: humer-$_device_type-$_device_location.timer"
     else
