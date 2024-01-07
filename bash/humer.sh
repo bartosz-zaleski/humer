@@ -91,6 +91,10 @@ while [[ $# -gt 0 ]]; do
             export action=disable_device
             shift
             ;;
+        enable_device)
+            export action=enable_device
+            shift
+            ;;
         device_status)
             export action=device_status
             shift
