@@ -428,30 +428,30 @@ disable_device() {
     if [[ $EUID == "0" ]]; then
         
         systemctl stop "humer-$_device_type-$_device_location.timer" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        if [[ $? ]]; then echo -e "\e[32m Stopped\e[0m: humer-$_device_type-$_device_location.timer"; fi
 
         systemctl disable "humer-$_device_type-$_device_location.timer" &>/dev/null
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
         
         systemctl stop "humer-$_device_type-$_device_location.service" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.service"; fi
+        if [[ $? ]]; then echo -e "\e[32m Stopped\e[0m: humer-$_device_type-$_device_location.service"; fi
 
         systemctl disable "humer-$_device_type-$_device_location.service" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.service"; fi
 
     elif sudo --non-interactive echo "Yay!" &>/dev/null; then
 
         sudo systemctl stop "humer-$_device_type-$_device_location.timer" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        if [[ $? ]]; then echo -e "\e[32m Stopped\e[0m: humer-$_device_type-$_device_location.timer"; fi
 
         sudo systemctl disable "humer-$_device_type-$_device_location.timer" &>/dev/null
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
         
         sudo systemctl stop "humer-$_device_type-$_device_location.service" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.service"; fi
+        if [[ $? ]]; then echo -e "\e[32m Stopped\e[0m: humer-$_device_type-$_device_location.service"; fi
 
         sudo systemctl disable "humer-$_device_type-$_device_location.service" &>/dev/null
-        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.service"; fi
 
     else
         echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
@@ -465,6 +465,137 @@ disable_device() {
             '$(date +%s)' AS tstamp, \
             '40' AS severity, \
             'Device manually disabled by user' AS log \
+        FROM sensors WHERE mac='$_mac' \
+    "
+}
+
+enable_device() {
+
+    local _mac
+    local _device_type
+    local _device_location
+    local _devices_file
+
+    _mac=$1
+    _device_type=$2
+    _device_location=$3
+    _devices_file=$4
+
+    # Validate input
+
+    if [[ -n $_mac ]]; then
+        if ! validate_mac $_mac; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac  \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_device_type ]]; then
+        if ! validate_device_type $_device_type; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_device_location ]]; then
+        if ! validate_device_location $_device_location; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_devices_file ]]; then
+        if ! validate_devices_file $_devices_file; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: Devices file incorrect: $_devices_file \e[0m"
+            exit 1
+        fi
+    fi
+
+    # Check if necessary info on the device is available
+
+    if [[ -n $_mac ]]; then
+
+        _device_type=$(get_device_type $_mac $_devices_file)
+        _device_location=$(get_device_location $_mac $_devices_file)
+
+        echo -e "\e[32m Found device type:\e[0m: $_device_type"
+        echo -e "\e[32m Found device location:\e[0m: $_device_location"
+
+        if ! validate_device_type "$_device_type"; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
+            exit 1
+        fi
+
+        if ! validate_device_location "$_device_location"; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
+            exit 1
+        fi
+
+    elif [[ -n $_device_type && -n $_device_location ]]; then
+
+        _mac=$(get_mac "$_devices_file" "$_device_type" "$_device_location")
+
+        if ! validate_mac $_mac; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
+            exit 1
+        fi
+
+    else
+
+        echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters; provide either MAC and "devices" file or device type and device location \e[0m"
+        exit 1
+
+    fi
+    
+    # Modify _device_type to match the timer/service filename
+
+    if [[ $_device_type == "sensor" ]]; then _device_type="sensors"; fi
+
+    # The actual function
+    # Must be root or in sudoers
+
+    if [[ $EUID == "0" ]]; then
+
+        systemctl enable "humer-$_device_type-$_device_location.service" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Enabled:\e[0m: humer-$_device_type-$_device_location.service"; fi
+
+        systemctl start "humer-$_device_type-$_device_location.service" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Started\e[0m: humer-$_device_type-$_device_location.service"; fi
+        
+        systemctl enable "humer-$_device_type-$_device_location.timer" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Enabled:\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        systemctl start "humer-$_device_type-$_device_location.timer" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Started\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+    elif sudo --non-interactive echo "Yay!" &>/dev/null; then
+
+        sudo systemctl enable "humer-$_device_type-$_device_location.service" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Enabled\e[0m: humer-$_device_type-$_device_location.service"; fi
+
+        sudo systemctl start "humer-$_device_type-$_device_location.service" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Started\e[0m: humer-$_device_type-$_device_location.service"; fi
+
+        sudo systemctl enable "humer-$_device_type-$_device_location.timer" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Enabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        sudo systemctl start "humer-$_device_type-$_device_location.timer" &>/dev/null
+        if [[ $? ]]; then echo -e "\e[32m Started\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        
+        
+
+    else
+        echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
+        exit 1
+    fi
+
+    sqlite3 /root/.humer/humer.db " \
+        INSERT INTO humer_logs(id_sensor, tstamp, severity, log) \
+        SELECT \
+            id_sensor, \
+            '$(date +%s)' AS tstamp, \
+            '40' AS severity, \
+            'Device manually enabled by user' AS log \
         FROM sensors WHERE mac='$_mac' \
     "
 }
@@ -576,6 +707,16 @@ case $action in
             disable_device "$mac" "" "" "$devices_file"
         elif [[ -n $device_type && -n $device_location ]]; then
             disable_device "" "$device_type" "$device_location" "$devices_file"
+        else
+            echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            exit 1
+        fi
+        ;;
+    enable_device)
+        if [[ -n $mac && -n $devices_file ]]; then
+            enable_device "$mac" "" "" "$devices_file"
+        elif [[ -n $device_type && -n $device_location ]]; then
+            enable_device "" "$device_type" "$device_location" "$devices_file"
         else
             echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
