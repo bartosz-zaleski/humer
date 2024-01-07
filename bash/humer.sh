@@ -404,7 +404,7 @@ disable_device() {
 
     elif [[ -n $_device_type && -n $_device_location ]]; then
 
-        _mac=$(get_mac $_device_type $_device_location $_devices_file)
+        _mac=$(get_mac $_devices_file $_device_type $_device_location)
 
         if ! validate_mac $_mac; then
             echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
