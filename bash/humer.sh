@@ -90,6 +90,10 @@ while [[ $# -gt 0 ]]; do
             export action=disable_device
             shift
             ;;
+        device_status)
+            export action=device_status
+            shift
+            ;;
         *)
             echo -e "\e[31mERROR [$FUNCNAME]: Incorrect parameter: $1\e[0m"
             echo ""
@@ -533,7 +537,6 @@ device_status() {
     if [[ $_device_type == "sensor" ]]; then _device_type="sensors"; fi
 
     # The actual function
-    # Must be root or in sudoers
     
     if systemctl status humer-sensors-bathroom.timer | grep 'Active: active'; then
         echo -e "\e[32m Active\e[0m: humer-$_device_type-$_device_location.timer"
@@ -567,6 +570,16 @@ case $action in
             disable_device "$mac" "" "" "$devices_file"
         elif [[ -n $device_type && -n $device_location ]]; then
             disable_device "" "$device_type" "$device_location" ""
+        else
+            echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            exit 1
+        fi
+        ;;
+    device_status)
+        if [[ -n $mac && -n $devices_file ]]; then
+            device_status "$mac" "" "" "$devices_file"
+        elif [[ -n $device_type && -n $device_location ]]; then
+            device_status "" "$device_type" "$device_location" ""
         else
             echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
