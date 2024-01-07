@@ -81,6 +81,10 @@ while [[ $# -gt 0 ]]; do
             export action=validate_devices_file
             shift
             ;;
+        disable_device)
+            export action=disable_device
+            shift
+            ;;
         *)
             echo -e "\e[31mERROR: Incorrect parameter: $1\e[0m"
             echo ""
@@ -240,6 +244,137 @@ get_mac() {
 
 }
 
+get_device_type() {
+
+    local _mac
+}
+
+get_device_location() {
+
+    local _mac
+
+}
+
+# Disable device
+
+disable_device() {
+    local _mac
+    local _device_type
+    local _device_location
+    local _devices_file
+    local _groups
+
+    _mac=$1
+    _device_type=$2
+    _device_location=$3
+    _devices_file=$4
+
+    # Validate input
+
+    if [[ -n $_mac ]]; then
+        if ! validate_mac $_mac; then
+            echo -e "\e[31m ERROR: MAC incorrect: $_mac  \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_device_type ]]; then
+        if ! validate_device_type $_device_type; then
+            echo -e "\e[31m ERROR: Device type incorrect: $_device_type \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_device_location ]]; then
+        if ! validate_device_location $_device_location; then
+            echo -e "\e[31m ERROR: Device location incorrect: $_device_location \e[0m"
+            exit 1
+        fi
+    fi
+
+    if [[ -n $_devices_file ]]; then
+        if ! validate_devices_file $_devices_file; then
+            echo -e "\e[31m ERROR: Devices file incorrect: $_devices_file \e[0m"
+            exit 1
+        fi
+    fi
+
+    # Check if necessary info on the device is available
+
+    if [[ -n $_mac ]]; then
+
+        _device_type=$(get_device_type $_mac $_devices_file)
+        _device_location=$(get_device_location $_mac $_devices_file)
+
+        if ! validate_device_type $_device_type; then
+            echo -e "\e[31m ERROR: Device type incorrect: $_device_type \e[0m"
+            exit 1
+        fi
+
+        if ! validate_device_location $_device_location; then
+            echo -e "\e[31m ERROR: Device location incorrect: $_device_location \e[0m"
+            exit 1
+        fi
+
+    elif [[ -n $_device_type && -n $_device_location ]]; then
+
+        # Grand, nothing to do
+        true
+
+    else
+
+        echo -e "\e[31m ERROR: Incorrect parameters; provide either MAC and "devices" file or device type and device location \e[0m"
+        exit 1
+
+    fi
+    
+    # Modify _device_type to match the timer/service filename
+
+    if [[ $_device_type == "sensor" ]]; then _device_type="sensors"; fi
+
+    # Must be root or in sudoers
+
+    if [[ $EUID == "0" ]]; then
+        
+        systemctl stop "humer-$_device_type-$_device_location.timer"
+        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        systemctl disable "humer-$_device_type-$_device_location.timer"
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        
+        systemctl stop "humer-$_device_type-$_device_location.service"
+        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.service"; fi
+
+        systemctl disable "humer-$_device_type-$_device_location.service"
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        exit 0
+
+    elif sudo --non-interactive echo "Yay!" &>/dev/null; then
+
+        sudo systemctl stop "humer-$_device_type-$_device_location.timer"
+        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        sudo systemctl disable "humer-$_device_type-$_device_location.timer"
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+        
+        sudo systemctl stop "humer-$_device_type-$_device_location.service"
+        if [[ $? ]]; then echo -e "\e[32m Stopped:\e[0m: humer-$_device_type-$_device_location.service"; fi
+
+        sudo systemctl disable "humer-$_device_type-$_device_location.service"
+        if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
+
+        exit 0
+        
+    else
+        echo -e "\e[31m ERROR: must be root or sudoer \e[0m"
+        exit 1
+    fi
+}
+
+device_status() {
+    true
+}
 
 # Run the script
 
@@ -248,7 +383,21 @@ case $action in
         get_mac $devices_file $device_type $device_location
         ;;
     validate_devices_file)
-        if validate_devices_file $devices_file == 0; then echo -e "\e[32m Correct \e[0m"; else echo -e "\e[31m Incorrect \e[0m"; fi
+        if validate_devices_file $devices_file == 0; then 
+            echo -e "\e[32m Correct \e[0m"
+        else 
+            echo -e "\e[31m Incorrect \e[0m"
+        fi
+        ;;
+    disable_device)
+        if [[ -n $mac && -n $devices_file ]]; then
+            disable_device "$mac" "" "" "$devices_file"
+        elif [[ -n $device_type && -n $device_location ]]; then
+            disable_device "" "$device_type" "$device_location" ""
+        else
+            echo -e "\e[31m ERROR: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
+            exit 1
+        fi
         ;;
     *)
         echo -e "\e[31m ERROR: Incorrect action: $action \e[0m"
