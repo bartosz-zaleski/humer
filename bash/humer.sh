@@ -439,8 +439,6 @@ disable_device() {
         systemctl disable "humer-$_device_type-$_device_location.service" &>/dev/null
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
 
-        exit 0
-
     elif sudo --non-interactive echo "Yay!" &>/dev/null; then
 
         sudo systemctl stop "humer-$_device_type-$_device_location.timer" &>/dev/null
@@ -455,8 +453,6 @@ disable_device() {
         sudo systemctl disable "humer-$_device_type-$_device_location.service" &>/dev/null
         if [[ $? ]]; then echo -e "\e[32m Disabled\e[0m: humer-$_device_type-$_device_location.timer"; fi
 
-        exit 0
-
     else
         echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
         exit 1
@@ -467,7 +463,7 @@ disable_device() {
         SELECT \
             id_sensor, \
             '$(date +%s)' AS tstamp, \
-            '50' AS severity, \
+            '40' AS severity, \
             'Device manually disabled by user' AS log \
         FROM sensors WHERE mac='$_mac' \
     "

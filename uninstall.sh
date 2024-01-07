@@ -105,6 +105,6 @@ fi
 # 4. Remove docker images
 
 if [[ $remove_images == "1" ]]; then
-    docker rmi humer/sensors --force
+    docker rmi humer/sensor:latest --force
     # docker rmi humer/grafana --force
 fi

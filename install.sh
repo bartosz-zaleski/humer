@@ -26,6 +26,7 @@ mkdir /root/.humer/
 cp bash/read_sensor.sh /root/.humer/
 mkdir /root/.humer/grafana/
 cp -ar bash/humer.sh /usr/bin/humer
+cp -ar config/devices /root/.humer/devices
 
 # 2. Build dockerfile/sensor
 
