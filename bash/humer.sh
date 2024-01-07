@@ -392,19 +392,19 @@ disable_device() {
         echo -e "\e[32m Found device type:\e[0m: $_device_type"
         echo -e "\e[32m Found device location:\e[0m: $_device_location"
 
-        if ! validate_device_type $_device_type; then
+        if ! validate_device_type "$_device_type"; then
             echo -e "\e[31m ERROR [$FUNCNAME]: Device type incorrect: $_device_type \e[0m"
             exit 1
         fi
 
-        if ! validate_device_location $_device_location; then
+        if ! validate_device_location "$_device_location"; then
             echo -e "\e[31m ERROR [$FUNCNAME]: Device location incorrect: $_device_location \e[0m"
             exit 1
         fi
 
     elif [[ -n $_device_type && -n $_device_location ]]; then
 
-        _mac=$(get_mac $_devices_file $_device_type $_device_location)
+        _mac=$(get_mac "$_devices_file" "$_device_type" "$_device_location")
 
         if ! validate_mac $_mac; then
             echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
