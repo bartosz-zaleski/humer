@@ -15,13 +15,14 @@ Flags:
 --device_mac            MAC address of the device to be addressed
 
 Actions:
-read                    Get current reading from a device
-mac                     Get MAC address of a device
-add_device
-enable_device
+#read                    Get current reading from a device
+#get_mac                     Get MAC address of a device
+#add_device
+#enable_device
 disable_device
 remove_device
 validate_devices_file   Validates whether the "devices" file is of correct structure
+device_status           Checks the systemctl timers to see if the one corresponding to the device is active
 
 Examples
 
@@ -403,8 +404,12 @@ disable_device() {
 
     elif [[ -n $_device_type && -n $_device_location ]]; then
 
-        # Grand, nothing to do
-        true
+        _mac=$(get_mac $_device_type $_device_location $_devices_file)
+
+        if ! validate_mac $_mac; then
+            echo -e "\e[31m ERROR [$FUNCNAME]: MAC incorrect: $_mac \e[0m"
+            exit 1
+        fi
 
     else
 
@@ -456,6 +461,16 @@ disable_device() {
         echo -e "\e[31m ERROR [$FUNCNAME]: must be root or sudoer \e[0m"
         exit 1
     fi
+
+    sqlite3 /root/.humer/humer.db " \
+        INSERT INTO humer_logs(id_sensor, tstamp, severity, log) \
+        SELECT \
+            id_sensor, \
+            '$(date +%s)' AS tstamp, \
+            '50' AS severity, \
+            'Device manually disabled by user' AS log \
+        FROM sensors WHERE mac='$_mac' \
+    "
 }
 
 device_status() {
