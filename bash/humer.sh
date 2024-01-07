@@ -579,7 +579,7 @@ case $action in
         if [[ -n $mac && -n $devices_file ]]; then
             disable_device "$mac" "" "" "$devices_file"
         elif [[ -n $device_type && -n $device_location ]]; then
-            disable_device "" "$device_type" "$device_location" ""
+            disable_device "" "$device_type" "$device_location" "$devices_file"
         else
             echo -e "\e[31m ERROR [$FUNCNAME]: Incorrect parameters for "$action"; provide MAC and devices file or device type and device location \e[0m"
             exit 1
