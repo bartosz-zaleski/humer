@@ -2,7 +2,25 @@
 
 source bash/common.sh
 
-# TODO flags for removing docker images as well
+show_help() {
+
+echo '
+Usage: ./humer.sh [flags] [action]
+Manually run various functions of Humer.
+
+Flags:
+--help                    Display help
+--version                 Display version
+--remove_db               Remove the database file
+--remove_images           Remove docker images
+
+Examples
+
+./humer.sh --device_type "sensor" --device_location "kitchen" read      Get reading from the device "sensor", located in "kitchen"
+./humer.sh --device_type "sensor" --device_location "bathroom" mac      Get the MAC address of the device "sensor", located in "bathroom"
+./humer.sh --device_mac "AA:BB:CC:DD:EE:FF" read                        Get reading from the device "AA:BB:CC:DD:EE:FF"
+'
+}
 
 # 0. Sanity check
 
@@ -10,6 +28,38 @@ docker &>/dev/null
 if [[ ! $? == 0 ]]; then _stderr "ERROR" "build.sh ERROR: 'docker' command failed"; exit 1; fi
 
 if [[ ! $USER == "root" ]]; then _stderr "ERROR" "build.sh ERROR: must be root to run 'build.sh'"; exit 1; fi
+
+# 1. Parameters
+
+export remove_db=0
+export remove_images=0
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help)
+            show_help
+            exit 0
+            ;;
+        --version)
+            echo "$CURRENT_VERSION"
+            exit 0
+            ;;
+        --remove-db)
+            export remove_db=1
+            shift
+            ;;
+        --remove-images)
+            export remove_images=1
+            shift
+            ;;
+         *)
+            echo -e "\e[31mERROR [$FUNCNAME]: Incorrect parameter: $1\e[0m"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+done   
 
 # 1. Remove services
 
@@ -42,4 +92,17 @@ systemctl reset-failed
 
 # 2. Remove files
 
-rm -rf /root/.humer/read_sensor.sh
+rm -f /root/.humer/read_sensor.sh
+rm -f /usr/bin/humer
+
+if [[ $remove_db == "1" ]]; then
+    rm -f /root/.humer/humer.db
+    rm -rf /root/.humer/
+fi
+
+# 4. Remove docker images
+
+if [[ $remove_images == "1" ]]; then
+    docker rmi humer/sensors --force
+    # docker rmi humer/grafana --force
+fi
