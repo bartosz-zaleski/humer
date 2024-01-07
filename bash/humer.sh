@@ -464,6 +464,7 @@ device_status() {
     local _device_type
     local _device_location
     local _devices_file
+    local _status
 
     _mac=$1
     _device_type=$2
@@ -537,19 +538,13 @@ device_status() {
     if [[ $_device_type == "sensor" ]]; then _device_type="sensors"; fi
 
     # The actual function
-    
-    if systemctl status humer-sensors-bathroom.timer | grep 'Active: active'; then
+
+    _status=$($ystemctl is-active "humer-$_device_type-$_device_location.timer")
+    if [[ $_status == "active" ]]; then
         echo -e "\e[32m Active\e[0m: humer-$_device_type-$_device_location.timer"
     else
         echo -e "\e[31m Inactive\e[0m: humer-$_device_type-$_device_location.timer"
     fi
-
-    if systemctl status humer-sensors-bathroom.service | grep 'Active: active'; then
-        echo -e "\e[32m Active\e[0m: humer-$_device_type-$_device_location.service"
-    else
-        echo -e "\e[31m Inactive\e[0m: humer-$_device_type-$_device_location.service"
-    fi    
-
 }
 
 # Run the script
