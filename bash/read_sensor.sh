@@ -21,7 +21,7 @@ if [[ "$reading" =~ ^OK.*$ ]]; then
         INSERT INTO sensor_readings(id_sensor, tstamp, temperature, humidity, battery) \
         SELECT \
             id_sensor, \
-            '$(date +%s)' AS tstamp, \
+            '$tstamp' AS tstamp, \
             '$temperature' AS temperature, \
             '$humidity' AS humidity, \
             '$battery' AS battery \
