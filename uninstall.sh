@@ -102,5 +102,11 @@ fi
 
 if [[ $remove_images == "1" ]]; then
     docker rmi humer/sensor:latest --force
+
+    # (
+    #     cd grafana/ || exit 1
+    #     docker compose down
+    # )
+
     # docker rmi humer/grafana --force
 fi
